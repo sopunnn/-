@@ -142,5 +142,67 @@ $("message").textContent="カードを削除したよ。";
 };
 buildOrder();render();
 </script>
+
+<section style="margin:20px 0;padding:16px;border:1px solid #ccc;border-radius:12px;">
+  <h2>📚 教科書から暗記カードを追加</h2>
+
+  <label for="bookSubject">科目</label>
+  <select id="bookSubject">
+    <option>生物</option>
+    <option>歴史</option>
+    <option>地理</option>
+    <option>古文</option>
+    <option>英語</option>
+    <option>情報</option>
+  </select>
+
+  <p>
+    <label for="bookName">教科書名</label><br>
+    <input id="bookName" type="text"
+      placeholder="例：高等学校 改訂 生物基礎"
+      style="width:100%;padding:10px;box-sizing:border-box;">
+  </p>
+
+  <p>
+    <label for="bookPages">ページ</label><br>
+    <input id="bookPages" type="text"
+      placeholder="例：94〜97"
+      style="width:100%;padding:10px;box-sizing:border-box;">
+  </p>
+
+  <p>ページの本文や重要用語を入力してね。</p>
+  <textarea id="bookContent"
+    placeholder="教科書の内容をここに入力"
+    style="width:100%;min-height:120px;padding:10px;box-sizing:border-box;"></textarea>
+
+  <p>
+    <button type="button" onclick="prepareBookCards()">
+      入力内容を確認する
+    </button>
+  </p>
+  <p id="bookResult"></p>
+</section>
+
+<script>
+function prepareBookCards() {
+  const subject = document.getElementById("bookSubject").value;
+  const book = document.getElementById("bookName").value.trim();
+  const pages = document.getElementById("bookPages").value.trim();
+  const content = document.getElementById("bookContent").value.trim();
+  const result = document.getElementById("bookResult");
+
+  if (!book || !pages || !content) {
+    result.textContent = "教科書名・ページ・本文を入力してね。";
+    return;
+  }
+
+  result.textContent =
+    "入力確認OK！ 科目：" + subject +
+    "／教科書：" + book +
+    "／ページ：" + pages +
+    "。この内容からカードを作る準備ができたよ。";
+}
+</script>
+
 </body>
 </html>
