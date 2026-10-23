@@ -1,0 +1,146 @@
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>マイ暗記カード</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#f3f5fa;color:#202638;font-family:-apple-system,BlinkMacSystemFont,sans-serif}
+header{background:#4658c8;color:white;padding:22px 18px;border-radius:0 0 22px 22px}
+h1{font-size:24px;margin:0 0 7px}
+header p{margin:0;font-size:13px;opacity:.9}
+main{max-width:600px;margin:auto;padding:16px}
+.panel,.flashcard{background:white;border-radius:18px;padding:16px;margin-bottom:14px;box-shadow:0 3px 14px #1520500c}
+label{display:block;font-size:13px;margin:10px 0 5px}
+select,input,textarea{width:100%;padding:12px;border:1px solid #d9deea;border-radius:10px;font-size:16px;background:white}
+button{border:0;border-radius:11px;padding:12px 14px;font-size:14px;font-weight:600;cursor:pointer}
+.primary{background:#4658c8;color:white}
+.secondary{background:#edf0ff;color:#394bb3}
+.gray{background:#eef0f4;color:#333b4c}
+.danger{background:#fff0ef;color:#b33c38}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+.row button{flex:1}
+.small{font-size:12px;color:#687087}
+.flashcard{min-height:220px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;border:1px solid #e5e8f3;cursor:pointer}
+.eyebrow{font-size:12px;color:#687087}
+#cardText{font-size:23px;font-weight:700;white-space:pre-wrap;overflow-wrap:anywhere;margin:20px 0}
+.count{font-size:13px;color:#687087}
+.stats{display:flex;gap:8px}
+.stat{flex:1;background:#f6f7fc;border-radius:12px;padding:12px;text-align:center}
+.stat strong{display:block;font-size:22px;margin-top:5px}
+h2{font-size:16px;margin:0 0 12px}
+#message{font-size:13px;color:#394bb3;margin-top:10px}
+</style>
+</head>
+<body>
+<header>
+<h1>📚 マイ暗記カード</h1>
+<p>毎日の勉強を、少しずつ。</p>
+</header>
+<main>
+<section class="panel">
+<h2>教科を選ぶ</h2>
+<select id="subject">
+<option>歴史</option><option>地理</option><option>生物</option>
+<option>古文</option><option>英語</option><option>情報</option>
+</select>
+</section>
+
+<section class="panel">
+<div class="stats">
+<div class="stat"><span class="small">登録カード</span><strong id="total">0</strong></div>
+<div class="stat"><span class="small">覚えた</span><strong id="known">0</strong></div>
+<div class="stat"><span class="small">苦手</span><strong id="weak">0</strong></div>
+</div>
+</section>
+
+<section class="flashcard" id="flashcard" role="button" tabindex="0">
+<div class="eyebrow" id="side">QUESTION</div>
+<div id="cardText">カードを追加して始めよう！</div>
+<div class="count" id="position">0 / 0</div>
+<div class="small">カードをタップすると答えが見えるよ</div>
+</section>
+
+<div class="row" style="margin-bottom:10px">
+<button class="gray" id="prev">← 前へ</button>
+<button class="secondary" id="flip">答えを見る</button>
+<button class="gray" id="next">次へ →</button>
+</div>
+<div class="row" style="margin-bottom:10px">
+<button class="secondary" id="shuffle">🔀 シャッフル</button>
+<button class="gray" id="all">全部</button>
+<button class="danger" id="weakOnly">苦手だけ</button>
+</div>
+<div class="row" style="margin-bottom:18px">
+<button class="primary" id="markKnown">✓ 覚えた</button>
+<button class="danger" id="markWeak">× まだ苦手</button>
+</div>
+
+<section class="panel">
+<h2>カードを追加する</h2>
+<label for="front">問題・表</label>
+<textarea id="front" rows="2" placeholder="例：大政奉還を行った人物は？"></textarea>
+<label for="back">答え・裏</label>
+<textarea id="back" rows="2" placeholder="例：徳川慶喜"></textarea>
+<div style="margin-top:12px" class="row">
+<button class="primary" id="add">＋ カードを追加</button>
+<button class="gray" id="delete">このカードを削除</button>
+</div>
+<div id="message"></div>
+</section>
+<p class="small">カードと学習記録は、このブラウザ内に保存されます。ブラウザのデータを消すと失われる場合があります。</p>
+</main>
+<script>
+const $=id=>document.getElementById(id);
+const key="myStudyCardsV1";
+let decks={};
+try{decks=JSON.parse(localStorage.getItem(key)||"{}")}catch(e){decks={}}
+let subject=$("subject").value,index=0,showBack=false,mode="all",order=[];
+
+function cards(){return decks[subject]||(decks[subject]=[])}
+function save(){try{localStorage.setItem(key,JSON.stringify(decks))}catch(e){$("message").textContent="保存できませんでした。空き容量を確認してね。"}}
+function buildOrder(){order=cards().map((_,i)=>i);if(mode==="weak")order=order.filter(i=>cards()[i].status==="weak");if(index>=order.length)index=0}
+function current(){return cards()[order[index]]}
+function render(){
+if(index>=order.length)index=0;
+const c=current();
+$("total").textContent=cards().length;
+$("known").textContent=cards().filter(c=>c.status==="known").length;
+$("weak").textContent=cards().filter(c=>c.status==="weak").length;
+$("side").textContent=showBack?"ANSWER":"QUESTION";
+$("cardText").textContent=c?(showBack?c.back:c.front):(mode==="weak"?"苦手カードはないよ！":"カードがないよ。下から追加してね！");
+$("position").textContent=order.length?`${index+1} / ${order.length}`:"0 / 0";
+}
+function changed(){save();render()}
+function flip(){if(current()){showBack=!showBack;render()}}
+$("subject").addEventListener("change",()=>{subject=$("subject").value;index=0;showBack=false;mode="all";buildOrder();render()});
+$("flashcard").addEventListener("click",flip);
+$("flashcard").addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();flip()}});
+$("flip").onclick=flip;
+$("prev").onclick=()=>{if(order.length){index=(index-1+order.length)%order.length;showBack=false;render()}};
+$("next").onclick=()=>{if(order.length){index=(index+1)%order.length;showBack=false;render()}};
+$("shuffle").onclick=()=>{for(let i=order.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[order[i],order[j]]=[order[j],order[i]]}index=0;showBack=false;render()};
+$("all").onclick=()=>{mode="all";index=0;showBack=false;buildOrder();render()};
+$("weakOnly").onclick=()=>{mode="weak";index=0;showBack=false;buildOrder();render()};
+$("markKnown").onclick=()=>{let c=current();if(c){c.status="known";changed();if(mode==="weak"){$("next").click()}}};
+$("markWeak").onclick=()=>{let c=current();if(c){c.status="weak";changed();if(mode==="weak"){$("next").click()}}};
+$("add").onclick=()=>{
+let front=$("front").value.trim(),back=$("back").value.trim();
+if(!front||!back){$("message").textContent="問題と答えを両方入力してね。";return}
+cards().push({front,back,status:""});
+$("front").value="";$("back").value="";
+mode="all";buildOrder();index=order.length-1;showBack=false;
+$("message").textContent="カードを追加したよ！";changed();
+};
+$("delete").onclick=()=>{
+let c=current();if(!c){$("message").textContent="削除するカードがないよ。";return}
+if(!confirm("このカードを削除していい？"))return;
+let i=order[index];cards().splice(i,1);index=0;buildOrder();showBack=false;changed();
+$("message").textContent="カードを削除したよ。";
+};
+buildOrder();render();
+</script>
+</body>
+</html>
