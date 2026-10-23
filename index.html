@@ -204,5 +204,104 @@ function prepareBookCards() {
 }
 </script>
 
+<section style="margin:20px 0;padding:16px;border:1px solid #ccc;border-radius:12px;">
+  <h2>📝 文章から暗記カードを作成</h2>
+  <p>文章を入力すると、重要語句を使った問題と答えを作るよ。</p>
+
+  <label for="sampleSubject">科目</label>
+  <select id="sampleSubject">
+    <option value="生物">生物</option>
+    <option value="歴史">歴史</option>
+    <option value="地理">地理</option>
+    <option value="古文">古文</option>
+    <option value="英語">英語</option>
+    <option value="情報">情報</option>
+  </select>
+
+  <p>
+    <label for="sampleText">文章</label>
+    <textarea id="sampleText" style="width:100%;min-height:120px;box-sizing:border-box;" placeholder="ここに文章を入力"></textarea>
+  </p>
+
+  <button type="button" onclick="makeSampleCards()">問題と答えを作る</button>
+  <div id="sampleCards" style="margin-top:12px;"></div>
+</section>
+
+<script>
+function makeSampleCards() {
+  const text = document.getElementById("sampleText").value.trim();
+  const subject = document.getElementById("sampleSubject").value;
+  const output = document.getElementById("sampleCards");
+
+  if (!text) {
+    output.textContent = "まず文章を入力してね。";
+    return;
+  }
+
+  let cards = [];
+
+  if (text.includes("恒常性") || text.includes("ホメオスタシス")) {
+    cards.push({
+      front: "体内環境を一定の範囲に保つ性質は？",
+      back: "恒常性（ホメオスタシス）"
+    });
+  }
+
+  if (text.includes("自律神経系")) {
+    cards.push({
+      front: "体内環境の調節に関わる神経系は？",
+      back: "自律神経系"
+    });
+  }
+
+  if (text.includes("内分泌系")) {
+    cards.push({
+      front: "ホルモンによる情報伝達に関わる系は？",
+      back: "内分泌系"
+    });
+  }
+
+  if (cards.length === 0) {
+    output.textContent =
+      "文章は読み込めたよ。今はサンプル用の語句に対応しているので、「恒常性」「自律神経系」「内分泌系」を含む文章で試してね。";
+    return;
+  }
+
+  output.innerHTML = "";
+
+  cards.forEach((card, index) => {
+    const item = document.createElement("div");
+    item.style.cssText = "padding:12px;margin:10px 0;border:1px solid #ddd;border-radius:8px;";
+    const question = document.createElement("p");
+    question.textContent = "問題" + (index + 1) + "：" + card.front;
+    const answer = document.createElement("p");
+    answer.textContent = "答え：" + card.back;
+    item.append(question, answer);
+    output.appendChild(item);
+  });
+
+  const save = document.createElement("button");
+  save.type = "button";
+  save.textContent = "このカードを保存用にコピー";
+  save.onclick = () => {
+    const data = cards.map(card => ({
+      subject,
+      front: card.front,
+      back: card.back
+    }));
+    const blob = new Blob([JSON.stringify(data, null, 2)], {
+      type: "application/json"
+    });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "flashcards.json";
+    link.click();
+    URL.revokeObjectURL(url);
+  };
+  output.appendChild(save);
+}
+</script>
+
 </body>
 </html>
