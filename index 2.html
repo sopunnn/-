@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>マイ暗記カード</title>
+
+<style>
+*{box-sizing:border-box}
+body{
+  margin:0;
+  background:#15181f;
+  color:#e5e8ef;
+  font-family:-apple-system,BlinkMacSystemFont,sans-serif
+}
+header{
+  background:#15181f;
+  padding:22px 18px 12px;
+  border:0
+}
+header h1{font-size:25px;margin:0;font-weight:750}
+header p{font-size:13px;color:#929baa;margin:6px 0 0}
+main{max-width:900px;margin:auto;padding:14px 16px 24px}
+.panel{
+  background:#202832;
+  border:1px solid #37414e;
+  border-radius:20px;
+  padding:18px;
+  margin-bottom:18px
+}
+h2{font-size:17px;margin:0 0 12px}
+label{display:block;font-size:14px;margin:12px 0 6px;color:#c8ced8}
+select,input,textarea{
+  width:100%;
+  padding:13px;
+  border:1px solid #3b4654;
+  border-radius:12px;
+  background:#202832;
+  font-size:16px;
+  color:#e5e8ef
+}
+button{
+  border:1px solid #394452;
+  border-radius:20px;
+  padding:15px 12px;
+  font-size:15px;
+  font-weight:600;
+  cursor:pointer;
+  background:#202832;
+  color:#e5e8ef;
+  transition:opacity .15s
+}
+button:active{opacity:.7}
+.primary,.light{
+  background:#50c18b;
+  color:#10251d;
+  border-color:#50c18b
+}
+.gray{background:#202832;color:#e5e8ef}
+.red{
+  background:#303039;
+  color:#f1b4b4;
+  border-color:#41414c
+}
+.row{display:flex;gap:9px;margin-top:10px}
+.row button{flex:1;min-width:0}
+.progress{
+  height:9px;
+  background:#37414e;
+  border-radius:20px;
+  overflow:hidden;
+  margin-top:12px
+}
+#progressBar{
+  height:100%;
+  width:0;
+  background:#50c18b;
+  transition:width .2s
+}
+.stats{display:flex;gap:8px;margin-top:14px}
+.stat{
+  flex:1;
+  text-align:center;
+  background:#29323d;
+  padding:12px 4px;
+  border-radius:12px;
+  font-size:12px;
+  color:#aab3c0
+}
+.stat strong{
+  display:block;
+  font-size:22px;
+  color:#e5e8ef;
+  margin-top:4px
+}
+.flashcard{
+  position:relative;
+  background:#eeefeb;
+  color:#242d39;
+  border:0;
+  border-radius:18px;
+  min-height:360px;
+  padding:28px 22px;
+  display:flex;
+  flex-direction:column;
+  align-items:stretch;
+  justify-content:space-between;
+  text-align:center;
+  cursor:pointer;
+  margin:28px 5px 16px;
+  box-shadow:7px 8px 0 #c6c9c4,12px 13px 0 #777d80;
+}
+.eyebrow{
+  font-size:14px;
+  color:#78818d;
+  text-align:left
+}
+#cardText{
+  font-size:clamp(24px,5vw,34px);
+  line-height:1.65;
+  font-weight:750;
+  white-space:pre-wrap;
+  overflow-wrap:anywhere;
+  margin:35px 0;
+  text-align:left
+}
+#position{
+  font-size:14px;
+  color:#78818d;
+  text-align:center;
+  margin-top:20px
+}
+.flashcard .small{
+  color:#78818d;
+  text-align:right;
+  margin-bottom:0
+}
+.small{font-size:13px;color:#aab3c0}
+#progressText{color:#aab3c0}
+#message,#generatorMessage{
+  font-size:13px;
+  color:#50c18b;
+  margin-top:10px
+}
+details summary{cursor:pointer;font-weight:700;font-size:15px}
+footer{text-align:center;font-size:12px;color:#858e9b;padding:16px 0 28px}
+#markKnown{
+  background:#50c18b;
+  color:#10251d;
+  border-color:#50c18b;
+  font-size:18px;
+  min-height:70px
+}
+#markWeak{
+  font-size:17px;
+  min-height:70px
+}
+#prev,#next{min-width:54px}
+@media(max-width:420px){
+  main{padding:12px}
+  header{padding:20px 14px 10px}
+  .flashcard{min-height:310px;padding:22px 18px}
+  #cardText{font-size:25px}
+  .row{gap:7px}
+  button{padding:13px 8px;font-size:13px}
+  #markKnown,#markWeak{font-size:15px}
+}
+</style>
+</head>
+<body>
+<header>
+  <h1>📚 マイ暗記カード</h1>
+  <p>毎日の勉強を、少しずつ。</p>
+</header>
+
+<main>
+  <section class="panel">
+    <label for="subject">勉強する科目</label>
+    <select id="subject">
+      <option>歴史</option>
+      <option>地理</option>
+      <option>生物</option>
+      <option>古文</option>
+      <option>英語</option>
+      <option>情報</option>
+    </select>
+
+    <label for="unitSelect">プリント・単元</label>
+    <div class="row">
+      <select id="unitSelect" style="flex:1">
+        <option value="すべて">すべてのプリント</option>
+      </select>
+      <button class="gray" id="createUnit">＋ プリント追加</button>
+      <button class="red" id="deleteUnit">単元削除</button>
+    </div>
+    <p class="small" id="unitMessage">科目ごとに「プリントNo.3」などを作れるよ。</p>
+
+    <div class="stats">
+      <div class="stat">登録カード<strong id="total">0</strong></div>
+      <div class="stat">覚えた<strong id="known">0</strong></div>
+      <div class="stat">苦手<strong id="weak">0</strong></div>
+    </div>
+    <div class="progress"><div id="progressBar"></div></div>
+    <p class="small" id="progressText">学習を始めよう！</p>
+  </section>
+
+  <div class="row">
+    <button class="gray" id="all">すべて</button>
+    <button class="gray" id="shuffle">シャッフル</button>
+    <button class="red" id="weakOnly">まだ苦手</button>
+  </div>
+
+  <section class="flashcard" id="flashcard" role="button" tabindex="0">
+    <div class="eyebrow" id="side">QUESTION</div>
+    <div id="cardText">カードを追加して始めよう！</div>
+    <div id="position">0 / 0</div>
+    <p class="small">カードをタップして答えを確認しよう</p>
+  </section>
+
+  <div class="row" style="margin-bottom:16px">
+    <button class="gray" id="prev">←</button>
+    <button class="red" id="markWeak">まだ苦手</button>
+    <button class="primary" id="markKnown">覚えた</button>
+    <button class="gray" id="next">→</button>
+  </div>
+
+  <section class="panel">
+    <details>
+      <summary>🛠️ 表示中のカードを編集・削除</summary>
+      <p class="small">今表示しているカードの内容を修正したり、不要なカードを削除したりできるよ。</p>
+      <label for="editFront">問題・表</label>
+      <textarea id="editFront" rows="2" placeholder="編集したい問題"></textarea>
+      <label for="editBack">答え・裏</label>
+      <textarea id="editBack" rows="2" placeholder="編集したい答え"></textarea>
+      <div class="row" style="margin-top:12px">
+        <button class="primary" id="editSave">変更を保存</button>
+        <button class="red" id="deleteCard">このカードを削除</button>
+      </div>
+      <div id="editMessage"></div>
+    </details>
+  </section>
+
+  <section class="panel">
+    <details>
+      <summary>＋ 暗記カードを追加する</summary>
+      <label for="front">問題・表</label>
+      <textarea id="front" rows="2" placeholder="例：大政奉還を行った人物は？"></textarea>
+      <label for="back">答え・裏</label>
+      <textarea id="back" rows="2" placeholder="例：徳川慶喜"></textarea>
+      <button class="primary" id="add" style="width:100%;margin-top:12px">カードを追加</button>
+      <div id="message"></div>
+    </details>
+  </section>
+
+  <section class="panel">
+    <details>
+      <summary>✏️ 文章からカードを作る</summary>
+      <p class="small">文章に含まれる対応済みの用語から、サンプル問題を作成するよ。</p>
+      <label for="sampleSubject">保存する科目</label>
+      <select id="sampleSubject">
+        <option>生物</option>
+        <option>歴史</option>
+        <option>地理</option>
+        <option>古文</option>
+        <option>英語</option>
+        <option>情報</option>
+      </select>
+      <label for="sampleText">教科書の文章・用語</label>
+      <textarea id="sampleText" rows="5" placeholder="文章を入力してね。例：恒常性、自律神経系、内分泌系"></textarea>
+      <button class="primary" id="makeCards" style="width:100%;margin-top:12px">問題と答えを作る</button>
+      <div id="generatorMessage"></div>
+      <div id="sampleCards"></div>
+    </details>
+  </section>
+
+  <footer>カードと学習記録は、このブラウザに保存されます。</footer>
+</main>
+
+<script>
+const $ = id => document.getElementById(id);
+const key = "myStudyCardsV1";
+
+let decks = {};
+try {
+  decks = JSON.parse(localStorage.getItem(key) || "{}");
+} catch (e) {
+  decks = {};
+}
+
+let subject = $("subject").value;
+let index = 0;
+let showBack = false;
+let mode = "all";
+let order = [];
+let selectedUnit = "すべて";
+
+// Unit names are stored separately so even an empty print can exist.
+// Existing cards remain in the original myStudyCardsV1 storage.
+const unitKey = "myStudyUnitsV1";
+let unitNames = {};
+try {
+  unitNames = JSON.parse(localStorage.getItem(unitKey) || "{}");
+} catch (e) {
+  unitNames = {};
+}
+function unitsForSubject() {
+  if (!Array.isArray(unitNames[subject])) unitNames[subject] = [];
+  // Keep any unit already attached to a card, including cards from older versions.
+  cards().forEach(card => {
+    const unit = card.unit || "未分類";
+    if (!unitNames[subject].includes(unit)) unitNames[subject].push(unit);
+  });
+  return unitNames[subject];
+}
+function saveUnits() {
+  try {
+    localStorage.setItem(unitKey, JSON.stringify(unitNames));
+    return true;
+  } catch (e) {
+    $("unitMessage").textContent = "単元を保存できなかったよ。";
+    return false;
+  }
+}
+function updateUnitSelect() {
+  const select = $("unitSelect");
+  const old = selectedUnit;
+  const names = unitsForSubject();
+  select.innerHTML = "";
+  const allOption = document.createElement("option");
+  allOption.value = "すべて";
+  allOption.textContent = "すべてのプリント";
+  select.appendChild(allOption);
+  names.forEach(name => {
+    const option = document.createElement("option");
+    option.value = name;
+    option.textContent = name;
+    select.appendChild(option);
+  });
+  if (old !== "すべて" && names.includes(old)) {
+    select.value = old;
+  } else {
+    selectedUnit = "すべて";
+    select.value = "すべて";
+  }
+}
+function cards() {
+  if (!decks[subject]) decks[subject] = [];
+  return decks[subject];
+}
+function visibleCards() {
+  return cards().filter(card => selectedUnit === "すべて" ||
+    (card.unit || "未分類") === selectedUnit);
+}
+
+function save() {
+  try {
+    localStorage.setItem(key, JSON.stringify(decks));
+    return true;
+  } catch (e) {
+    $("message").textContent = "保存できなかったよ。空き容量を確認してね。";
+    return false;
+  }
+}
+
+function buildOrder() {
+  const list = visibleCards();
+  order = list.map((_, i) => i);
+  if (mode === "weak") {
+    order = order.filter(i => list[i].status === "weak");
+  }
+  if (index >= order.length) index = 0;
+}
+
+function current() {
+  return order.length ? visibleCards()[order[index]] : null;
+}
+
+function render() {
+  if (index >= order.length) index = 0;
+  updateUnitSelect();
+  const c = current();
+  const list = visibleCards();
+  const known = list.filter(c => c.status === "known").length;
+  const weak = list.filter(c => c.status === "weak").length;
+
+  $("total").textContent = list.length;
+  $("known").textContent = known;
+  $("weak").textContent = weak;
+  $("progressBar").style.width =
+    (list.length ? known / list.length * 100 : 0) + "%";
+  $("progressText").textContent =
+    list.length ? "覚えたカード " + known + " / " + list.length : "学習を始めよう！";
+
+  $("side").textContent = showBack ? "ANSWER" : "QUESTION";
+  $("cardText").textContent = c
+    ? (showBack ? c.back : c.front)
+    : (mode === "weak" ? "苦手カードはないよ！" : "カードを追加して始めよう！");
+  $("position").textContent = order.length
+    ? (index + 1) + " / " + order.length
+    : "0 / 0";
+
+  $("editFront").value = c ? c.front : "";
+  $("editBack").value = c ? c.back : "";
+  $("editMessage").textContent = "";
+}
+
+function refresh() {
+  buildOrder();
+  render();
+}
+
+function flip() {
+  if (current()) {
+    showBack = !showBack;
+    render();
+  }
+}
+
+$("subject").addEventListener("change", () => {
+  subject = $("subject").value;
+  selectedUnit = "すべて";
+  index = 0;
+  showBack = false;
+  mode = "all";
+  updateUnitSelect();
+  refresh();
+});
+
+$("unitSelect").addEventListener("change", () => {
+  selectedUnit = $("unitSelect").value;
+  index = 0;
+  showBack = false;
+  mode = "all";
+  refresh();
+});
+
+$("createUnit").onclick = () => {
+  const name = prompt("プリント名を入力してね（例：プリントNo.3）");
+  if (name === null) return;
+  const cleaned = name.trim();
+  if (!cleaned) {
+    $("unitMessage").textContent = "プリント名を入力してね。";
+    return;
+  }
+  const names = unitsForSubject();
+  if (names.includes(cleaned)) {
+    $("unitMessage").textContent = "そのプリント名はもうあるよ。";
+    return;
+  }
+  names.push(cleaned);
+  if (!saveUnits()) return;
+  selectedUnit = cleaned;
+  index = 0;
+  mode = "all";
+  updateUnitSelect();
+  refresh();
+  $("unitMessage").textContent = "「" + cleaned + "」を作ったよ！カードを追加すると、このプリントに入るよ。";
+};
+
+$("deleteUnit").onclick = () => {
+  if (selectedUnit === "すべて") {
+    $("unitMessage").textContent = "削除したいプリントを先に選んでね。";
+    return;
+  }
+  const name = selectedUnit;
+  const count = cards().filter(card => (card.unit || "未分類") === name).length;
+  const warning = "「" + name + "」を削除する？\n中のカード" + count + "枚もすべて削除されるよ。この操作は元に戻せないよ。";
+  if (!confirm(warning)) return;
+  decks[subject] = cards().filter(card => (card.unit || "未分類") !== name);
+  unitNames[subject] = unitsForSubject().filter(unit => unit !== name);
+  selectedUnit = "すべて";
+  index = 0;
+  showBack = false;
+  save();
+  saveUnits();
+  updateUnitSelect();
+  refresh();
+  $("unitMessage").textContent = "「" + name + "」と中のカードを削除したよ。";
+};
+
+$("flashcard").addEventListener("click", flip);
+$("flashcard").addEventListener("keydown", e => {
+  if (e.key === "Enter" || e.key === " ") {
+    e.preventDefault();
+    flip();
+  }
+});
+
+$("prev").onclick = () => {
+  if (order.length) {
+    index = (index - 1 + order.length) % order.length;
+    showBack = false;
+    render();
+  }
+};
+
+$("next").onclick = () => {
+  if (order.length) {
+    index = (index + 1) % order.length;
+    showBack = false;
+    render();
+  }
+};
+
+$("shuffle").onclick = () => {
+  for (let i = order.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [order[i], order[j]] = [order[j], order[i]];
+  }
+  index = 0;
+  showBack = false;
+  render();
+};
+
+$("all").onclick = () => {
+  mode = "all";
+  index = 0;
+  showBack = false;
+  refresh();
+};
+
+$("weakOnly").onclick = () => {
+  mode = "weak";
+  index = 0;
+  showBack = false;
+  refresh();
+};
+
+function markAndNext(status) {
+  const c = current();
+  if (!c) return;
+
+  c.status = status;
+  save();
+
+  if (order.length > 1) {
+    index = (index + 1) % order.length;
+  }
+
+  showBack = false;
+  refresh();
+}
+
+$("markKnown").onclick = () => markAndNext("known");
+$("markWeak").onclick = () => markAndNext("weak");
+
+$("add").onclick = () => {
+  const front = $("front").value.trim();
+  const back = $("back").value.trim();
+
+  if (!front || !back) {
+    $("message").textContent = "問題と答えを両方入力してね。";
+    return;
+  }
+
+  cards().push({front, back, status: "", unit: selectedUnit === "すべて" ? "未分類" : selectedUnit});
+  if (!save()) return;
+  if (!unitsForSubject().includes(selectedUnit === "すべて" ? "未分類" : selectedUnit)) {
+    unitsForSubject().push(selectedUnit === "すべて" ? "未分類" : selectedUnit);
+    saveUnits();
+  }
+
+  $("front").value = "";
+  $("back").value = "";
+  $("message").textContent = "カードを追加したよ！";
+  mode = "all";
+  index = cards().length - 1;
+  showBack = false;
+  refresh();
+};
+
+$("editSave").onclick = () => {
+  const c = current();
+  if (!c) {
+    $("editMessage").textContent = "編集するカードがないよ。";
+    return;
+  }
+  const front = $("editFront").value.trim();
+  const back = $("editBack").value.trim();
+  if (!front || !back) {
+    $("editMessage").textContent = "問題と答えを両方入力してね。";
+    return;
+  }
+  c.front = front;
+  c.back = back;
+  if (!save()) return;
+  render();
+  $("editMessage").textContent = "変更を保存したよ！";
+};
+
+$("deleteCard").onclick = () => {
+  const c = current();
+  if (!c) {
+    $("editMessage").textContent = "削除するカードがないよ。";
+    return;
+  }
+  if (!confirm("このカードを削除していい？この操作は元に戻せないよ。")) return;
+  const list = cards();
+  const actualIndex = list.indexOf(c);
+  if (actualIndex !== -1) list.splice(actualIndex, 1);
+  if (!save()) return;
+  index = Math.min(index, Math.max(0, order.length - 2));
+  showBack = false;
+  refresh();
+  $("editMessage").textContent = "カードを削除したよ。";
+};
+
+$("makeCards").onclick = () => {
+  const text = $("sampleText").value.trim();
+  const target = $("sampleSubject").value;
+  const output = $("sampleCards");
+  $("generatorMessage").textContent = "";
+  output.innerHTML = "";
+
+  if (!text) {
+    $("generatorMessage").textContent = "文章を入力してね。";
+    return;
+  }
+
+  const generated = [];
+  const samples = [
+    [["恒常性", "ホメオスタシス"], "体内環境を一定の範囲に保つ性質は？", "恒常性（ホメオスタシス）"],
+    [["自律神経系"], "体内環境の調節に関わる神経系は？", "自律神経系"],
+    [["内分泌系"], "ホルモンによる情報伝達に関わる系は？", "内分泌系"]
+  ];
+
+  samples.forEach(([terms, front, back]) => {
+    if (terms.some(term => text.includes(term))) {
+      generated.push({front, back});
+    }
+  });
+
+  if (!generated.length) {
+    $("generatorMessage").textContent =
+      "今は「恒常性」「自律神経系」「内分泌系」に対応しているよ。";
+    return;
+  }
+
+  generated.forEach(card => {
+    const item = document.createElement("div");
+    item.style.cssText = "padding:10px 0;border-bottom:1px solid #37414e";
+    const q = document.createElement("p");
+    q.textContent = "問題：" + card.front;
+    const a = document.createElement("p");
+    a.textContent = "答え：" + card.back;
+    item.append(q, a);
+    output.appendChild(item);
+  });
+
+  const saveButton = document.createElement("button");
+  saveButton.className = "primary";
+  saveButton.style.cssText = "width:100%;margin-top:12px";
+  saveButton.textContent = "「" + target + "」のデッキに保存";
+
+  saveButton.onclick = () => {
+    if (!decks[target]) decks[target] = [];
+    generated.forEach(card => {
+      decks[target].push({
+        front: card.front,
+        back: card.back,
+        status: "",
+        unit: selectedUnit === "すべて" ? "未分類" : selectedUnit
+      });
+    });
+
+    try {
+      localStorage.setItem(key, JSON.stringify(decks));
+    } catch (e) {
+      $("generatorMessage").textContent = "保存できなかったよ。空き容量を確認してね。";
+      return;
+    }
+
+    if ($("subject").value === target) {
+      subject = target;
+      if (selectedUnit === "すべて") selectedUnit = "未分類";
+      if (!unitsForSubject().includes("未分類")) unitsForSubject().push("未分類");
+      saveUnits();
+      updateUnitSelect();
+      mode = "all";
+      index = Math.max(0, visibleCards().length - generated.length);
+      showBack = false;
+      refresh();
+    }
+
+    output.innerHTML = "";
+    $("generatorMessage").textContent =
+      generated.length + "枚を「" + target + "」の「" + (selectedUnit === "すべて" ? "未分類" : selectedUnit) + "」に保存したよ！";
+  };
+
+  output.appendChild(saveButton);
+};
+
+refresh();
+</script>
+</body>
+</html>
