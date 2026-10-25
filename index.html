@@ -203,19 +203,20 @@ footer{text-align:center;font-size:12px;color:#858e9b;padding:16px 0 28px}
     <p class="small">カードをタップして答えを確認しよう</p>
   </section>
 
+  
   <div class="row">
-    <button class="gray" id="prev">← 前へ</button>
-    <button class="gray" id="next">次へ →</button>
+    <button class="gray" id="all">すべて</button>
+    <button class="gray" id="shuffle">シャッフル</button>
+    <button class="red" id="weakOnly">まだのカードだけ</button>
   </div>
-  <div class="row">
-    <button class="light" id="shuffle">🔀 シャッフル</button>
-    <button class="gray" id="all">全部のカード</button>
-    <button class="red" id="weakOnly">苦手だけ</button>
-  </div>
+
   <div class="row" style="margin-bottom:16px">
-    <button class="primary" id="markKnown">✓ 覚えた</button>
-    <button class="red" id="markWeak">× まだ苦手</button>
+    <button class="gray" id="prev">←</button>
+    <button class="red" id="markWeak">まだ苦手</button>
+    <button class="primary" id="markKnown">覚えた</button>
+    <button class="gray" id="next">→</button>
   </div>
+
 
   <section class="panel">
     <details>
