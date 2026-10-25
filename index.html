@@ -1,4 +1,4 @@
-<!DOCTYPE html >
+<!DOCTYPE html>
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -253,23 +253,24 @@ footer{text-align:center;font-size:12px;color:#858e9b;padding:16px 0 28px}
   </section>
 
   <section class="panel">
-    <details>
-      <summary>✏️ 文章からカードを作る</summary>
-      <p class="small">文章に含まれる対応済みの用語から、サンプル問題を作成するよ。</p>
-      <label for="sampleSubject">保存する科目</label>
-      <select id="sampleSubject">
-        <option>生物</option>
+    <details open>
+      <summary>📥 ChatGPTのカードを一括追加</summary>
+      <p class="small">プリントの写真をChatGPTに送って作ったJSON形式のカードを、ここに貼り付けてまとめて登録できるよ。</p>
+      <label for="bulkSubject">保存する科目</label>
+      <select id="bulkSubject">
         <option>歴史</option>
         <option>地理</option>
+        <option>生物</option>
         <option>古文</option>
         <option>英語</option>
         <option>情報</option>
       </select>
-      <label for="sampleText">教科書の文章・用語</label>
-      <textarea id="sampleText" rows="5" placeholder="文章を入力してね。例：恒常性、自律神経系、内分泌系"></textarea>
-      <button class="primary" id="makeCards" style="width:100%;margin-top:12px">問題と答えを作る</button>
-      <div id="generatorMessage"></div>
-      <div id="sampleCards"></div>
+      <label for="bulkUnit">プリント・単元名</label>
+      <input id="bulkUnit" type="text" placeholder="例：プリントNo.3、血糖濃度" value="未分類">
+      <label for="bulkCards">カードのJSON</label>
+      <textarea id="bulkCards" rows="8" placeholder='[{"front":"問題文","back":"答え"}]'></textarea>
+      <button class="primary" id="bulkImport" style="width:100%;margin-top:12px">カードをまとめて追加</button>
+      <div id="bulkMessage" role="status"></div>
     </details>
   </section>
 
@@ -605,89 +606,64 @@ $("deleteCard").onclick = () => {
   $("editMessage").textContent = "カードを削除したよ。";
 };
 
-$("makeCards").onclick = () => {
-  const text = $("sampleText").value.trim();
-  const target = $("sampleSubject").value;
-  const output = $("sampleCards");
-  $("generatorMessage").textContent = "";
-  output.innerHTML = "";
+$("bulkImport").onclick = () => {
+  const message = $("bulkMessage");
+  message.textContent = "";
 
-  if (!text) {
-    $("generatorMessage").textContent = "文章を入力してね。";
+  let imported;
+  try {
+    imported = JSON.parse($("bulkCards").value.trim());
+  } catch (e) {
+    message.textContent = "JSONの形式を確認してね。ChatGPTの出力をそのまま貼り付けてね。";
     return;
   }
 
-  const generated = [];
-  const samples = [
-    [["恒常性", "ホメオスタシス"], "体内環境を一定の範囲に保つ性質は？", "恒常性（ホメオスタシス）"],
-    [["自律神経系"], "体内環境の調節に関わる神経系は？", "自律神経系"],
-    [["内分泌系"], "ホルモンによる情報伝達に関わる系は？", "内分泌系"]
-  ];
-
-  samples.forEach(([terms, front, back]) => {
-    if (terms.some(term => text.includes(term))) {
-      generated.push({front, back});
-    }
-  });
-
-  if (!generated.length) {
-    $("generatorMessage").textContent =
-      "今は「恒常性」「自律神経系」「内分泌系」に対応しているよ。";
+  if (!Array.isArray(imported) || imported.length === 0 ||
+      !imported.every(card => card &&
+        typeof card.front === "string" && card.front.trim() &&
+        typeof card.back === "string" && card.back.trim())) {
+    message.textContent = '「front」と「back」があるカードの配列を貼り付けてね。';
     return;
   }
 
-  generated.forEach(card => {
-    const item = document.createElement("div");
-    item.style.cssText = "padding:10px 0;border-bottom:1px solid #37414e";
-    const q = document.createElement("p");
-    q.textContent = "問題：" + card.front;
-    const a = document.createElement("p");
-    a.textContent = "答え：" + card.back;
-    item.append(q, a);
-    output.appendChild(item);
-  });
+  const target = $("bulkSubject").value;
+  const unit = $("bulkUnit").value.trim() || "未分類";
+  const newCards = imported.map(card => ({
+    front: card.front.trim(),
+    back: card.back.trim(),
+    status: "",
+    unit
+  }));
 
-  const saveButton = document.createElement("button");
-  saveButton.className = "primary";
-  saveButton.style.cssText = "width:100%;margin-top:12px";
-  saveButton.textContent = "「" + target + "」のデッキに保存";
+  if (!decks[target]) decks[target] = [];
+  decks[target].push(...newCards);
+  try {
+    localStorage.setItem(key, JSON.stringify(decks));
+  } catch (e) {
+    decks[target].splice(-newCards.length, newCards.length);
+    message.textContent = "保存できなかったよ。ブラウザの空き容量を確認してね。";
+    return;
+  }
 
-  saveButton.onclick = () => {
-    if (!decks[target]) decks[target] = [];
-    generated.forEach(card => {
-      decks[target].push({
-        front: card.front,
-        back: card.back,
-        status: "",
-        unit: selectedUnit === "すべて" ? "未分類" : selectedUnit
-      });
-    });
+  if (!Array.isArray(unitNames[target])) unitNames[target] = [];
+  if (!unitNames[target].includes(unit)) unitNames[target].push(unit);
+  try {
+    localStorage.setItem(unitKey, JSON.stringify(unitNames));
+  } catch (e) {
+    message.textContent = "カードは保存したけど、プリント名の保存に失敗したよ。";
+  }
 
-    try {
-      localStorage.setItem(key, JSON.stringify(decks));
-    } catch (e) {
-      $("generatorMessage").textContent = "保存できなかったよ。空き容量を確認してね。";
-      return;
-    }
+  $("bulkCards").value = "";
+  message.textContent = newCards.length + "枚を「" + target + "」の「" + unit + "」に追加したよ！";
 
-    if ($("subject").value === target) {
-      subject = target;
-      if (selectedUnit === "すべて") selectedUnit = "未分類";
-      if (!unitsForSubject().includes("未分類")) unitsForSubject().push("未分類");
-      saveUnits();
-      updateUnitSelect();
-      mode = "all";
-      index = Math.max(0, visibleCards().length - generated.length);
-      showBack = false;
-      refresh();
-    }
-
-    output.innerHTML = "";
-    $("generatorMessage").textContent =
-      generated.length + "枚を「" + target + "」の「" + (selectedUnit === "すべて" ? "未分類" : selectedUnit) + "」に保存したよ！";
-  };
-
-  output.appendChild(saveButton);
+  if ($("subject").value === target) {
+    subject = target;
+    selectedUnit = unit;
+    mode = "all";
+    index = Math.max(0, visibleCards().length - newCards.length);
+    showBack = false;
+    refresh();
+  }
 };
 
 refresh();
