@@ -6,32 +6,169 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>マイ暗記カード</title>
 <style>
-*{box-sizing:border-box}
-body{margin:0;background:#f3f5fa;color:#202638;font-family:-apple-system,BlinkMacSystemFont,sans-serif}
-header{background:#4658c8;color:white;padding:22px 18px;border-radius:0 0 22px 22px}
-h1{font-size:24px;margin:0 0 7px}
-header p{margin:0;font-size:13px;opacity:.9}
-main{max-width:600px;margin:auto;padding:16px}
-.panel,.flashcard{background:white;border-radius:18px;padding:16px;margin-bottom:14px;box-shadow:0 3px 14px #1520500c}
-label{display:block;font-size:13px;margin:10px 0 5px}
-select,input,textarea{width:100%;padding:12px;border:1px solid #d9deea;border-radius:10px;font-size:16px;background:white}
-button{border:0;border-radius:11px;padding:12px 14px;font-size:14px;font-weight:600;cursor:pointer}
-.primary{background:#4658c8;color:white}
-.secondary{background:#edf0ff;color:#394bb3}
-.gray{background:#eef0f4;color:#333b4c}
-.danger{background:#fff0ef;color:#b33c38}
-.row{display:flex;gap:8px;flex-wrap:wrap}
-.row button{flex:1}
-.small{font-size:12px;color:#687087}
-.flashcard{min-height:220px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;border:1px solid #e5e8f3;cursor:pointer}
-.eyebrow{font-size:12px;color:#687087}
-#cardText{font-size:23px;font-weight:700;white-space:pre-wrap;overflow-wrap:anywhere;margin:20px 0}
-.count{font-size:13px;color:#687087}
-.stats{display:flex;gap:8px}
-.stat{flex:1;background:#f6f7fc;border-radius:12px;padding:12px;text-align:center}
-.stat strong{display:block;font-size:22px;margin-top:5px}
-h2{font-size:16px;margin:0 0 12px}
-#message{font-size:13px;color:#394bb3;margin-top:10px}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: #f7f8fc;
+  color: #252b3a;
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+  line-height: 1.6;
+}
+
+header {
+  background: white;
+  color: #252b3a;
+  padding: 20px 18px;
+  border-bottom: 1px solid #e8eaf1;
+}
+
+h1 {
+  font-size: 23px;
+  margin: 0 0 4px;
+}
+
+header p {
+  margin: 0;
+  font-size: 13px;
+  color: #737b8c;
+}
+
+main {
+  max-width: 600px;
+  margin: auto;
+  padding: 14px;
+}
+
+.panel,
+.flashcard {
+  background: white;
+  border: 1px solid #e6e8ef;
+  border-radius: 14px;
+  padding: 16px;
+  margin-bottom: 12px;
+  box-shadow: none;
+}
+
+h2 {
+  font-size: 16px;
+  margin: 0 0 12px;
+}
+
+label {
+  display: block;
+  font-size: 13px;
+  margin: 10px 0 5px;
+}
+
+select,
+input,
+textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #dfe3eb;
+  border-radius: 9px;
+  font-size: 16px;
+  background: white;
+  color: #252b3a;
+}
+
+button {
+  border: 1px solid #e0e3ec;
+  border-radius: 9px;
+  padding: 11px 13px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.primary {
+  background: #4658c8;
+  color: white;
+  border-color: #4658c8;
+}
+
+.secondary {
+  background: #eef0ff;
+  color: #394bb3;
+  border-color: #eef0ff;
+}
+
+.gray {
+  background: white;
+  color: #343b4c;
+}
+
+.danger {
+  background: #fff1f0;
+  color: #ad3935;
+  border-color: #ffe2df;
+}
+
+.row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.row button {
+  flex: 1;
+  min-width: 0;
+}
+
+.small,
+.eyebrow,
+.count {
+  font-size: 12px;
+  color: #737b8c;
+}
+
+.flashcard {
+  min-height: 210px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+#cardText {
+  font-size: 22px;
+  font-weight: 700;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  margin: 18px 0;
+}
+
+.stats {
+  display: flex;
+  gap: 8px;
+}
+
+.stat {
+  flex: 1;
+  background: #f7f8fc;
+  border-radius: 10px;
+  padding: 10px 4px;
+  text-align: center;
+}
+
+.stat strong {
+  display: block;
+  font-size: 21px;
+  margin-top: 4px;
+}
+
+#message {
+  font-size: 13px;
+  color: #394bb3;
+  margin-top: 10px;
+}
+
 </style>
 </head>
 <body>
