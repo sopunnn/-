@@ -70,12 +70,11 @@ footer{text-align:center;font-size:12px;color:#8a90a0;padding:12px 0 28px}
     <div class="eyebrow" id="side">QUESTION</div>
     <div id="cardText">カードを追加して始めよう！</div>
     <div id="position">0 / 0</div>
-    <p class="small">カードをタップして答えを見る</p>
+    <p class="small">カードをタップして答えを確認しよう</p>
   </section>
 
   <div class="row">
     <button class="gray" id="prev">← 前へ</button>
-    <button class="light" id="flip">答えを見る</button>
     <button class="gray" id="next">次へ →</button>
   </div>
   <div class="row">
@@ -220,7 +219,7 @@ $("flashcard").addEventListener("keydown", e => {
     flip();
   }
 });
-$("flip").onclick = flip;
+
 
 $("prev").onclick = () => {
   if (order.length) {
@@ -262,28 +261,24 @@ $("weakOnly").onclick = () => {
   refresh();
 };
 
-$("markKnown").onclick = () => {
-  const c = current();
-  if (!c) return;
-  c.status = "known";
-  save();
-  if (mode === "weak") {
-    index = order.length > 1 ? (index + 1) % order.length : 0;
-    buildOrder();
-  }
-  render();
-};
 
-$("markWeak").onclick = () => {
+function markAndNext(status) {
   const c = current();
   if (!c) return;
-  c.status = "weak";
+
+  c.status = status;
   save();
-  if (mode === "weak") {
-    buildOrder();
+
+  if (order.length > 1) {
+    index = (index + 1) % order.length;
   }
-  render();
-};
+
+  showBack = false;
+  refresh();
+}
+
+$("markKnown").onclick = () => markAndNext("known");
+$("markWeak").onclick = () => markAndNext("weak");
 
 $("add").onclick = () => {
   const front = $("front").value.trim();
