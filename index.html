@@ -6,458 +6,387 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>マイ暗記カード</title>
 <style>
-
-* {
-  box-sizing: border-box;
-}
-
-body {
-  margin: 0;
-  background: #f7f8fc;
-  color: #252b3a;
-  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-  line-height: 1.6;
-}
-
-header {
-  background: white;
-  color: #252b3a;
-  padding: 20px 18px;
-  border-bottom: 1px solid #e8eaf1;
-}
-
-h1 {
-  font-size: 23px;
-  margin: 0 0 4px;
-}
-
-header p {
-  margin: 0;
-  font-size: 13px;
-  color: #737b8c;
-}
-
-main {
-  max-width: 600px;
-  margin: auto;
-  padding: 14px;
-}
-
-.panel,
-.flashcard {
-  background: white;
-  border: 1px solid #e6e8ef;
-  border-radius: 14px;
-  padding: 16px;
-  margin-bottom: 12px;
-  box-shadow: none;
-}
-
-h2 {
-  font-size: 16px;
-  margin: 0 0 12px;
-}
-
-label {
-  display: block;
-  font-size: 13px;
-  margin: 10px 0 5px;
-}
-
-select,
-input,
-textarea {
-  width: 100%;
-  padding: 12px;
-  border: 1px solid #dfe3eb;
-  border-radius: 9px;
-  font-size: 16px;
-  background: white;
-  color: #252b3a;
-}
-
-button {
-  border: 1px solid #e0e3ec;
-  border-radius: 9px;
-  padding: 11px 13px;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.primary {
-  background: #4658c8;
-  color: white;
-  border-color: #4658c8;
-}
-
-.secondary {
-  background: #eef0ff;
-  color: #394bb3;
-  border-color: #eef0ff;
-}
-
-.gray {
-  background: white;
-  color: #343b4c;
-}
-
-.danger {
-  background: #fff1f0;
-  color: #ad3935;
-  border-color: #ffe2df;
-}
-
-.row {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-.row button {
-  flex: 1;
-  min-width: 0;
-}
-
-.small,
-.eyebrow,
-.count {
-  font-size: 12px;
-  color: #737b8c;
-}
-
-.flashcard {
-  min-height: 210px;
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-}
-
-#cardText {
-  font-size: 22px;
-  font-weight: 700;
-  white-space: pre-wrap;
-  overflow-wrap: anywhere;
-  margin: 18px 0;
-}
-
-.stats {
-  display: flex;
-  gap: 8px;
-}
-
-.stat {
-  flex: 1;
-  background: #f7f8fc;
-  border-radius: 10px;
-  padding: 10px 4px;
-  text-align: center;
-}
-
-.stat strong {
-  display: block;
-  font-size: 21px;
-  margin-top: 4px;
-}
-
-#message {
-  font-size: 13px;
-  color: #394bb3;
-  margin-top: 10px;
-}
-
+*{box-sizing:border-box}
+body{margin:0;background:#f6f7fb;color:#252b3a;font-family:-apple-system,BlinkMacSystemFont,sans-serif}
+header{background:#fff;padding:22px 18px;border-bottom:1px solid #e7e9f0}
+header h1{font-size:23px;margin:0}
+header p{font-size:13px;color:#7b8191;margin:5px 0 0}
+main{max-width:560px;margin:auto;padding:16px}
+.panel{background:white;border:1px solid #e5e8f0;border-radius:16px;padding:16px;margin-bottom:14px}
+h2{font-size:16px;margin:0 0 12px}
+label{display:block;font-size:13px;margin:12px 0 6px}
+select,input,textarea{width:100%;padding:12px;border:1px solid #dfe3eb;border-radius:10px;background:white;font-size:16px;color:#252b3a}
+button{border:0;border-radius:10px;padding:12px;font-size:14px;font-weight:600;cursor:pointer}
+button:active{opacity:.75}
+.primary{background:#4658c8;color:white}
+.light{background:#eef0ff;color:#394bb3}
+.gray{background:#f0f2f6;color:#343b4c}
+.red{background:#fff0ef;color:#ad3935}
+.row{display:flex;gap:8px;margin-top:10px}
+.row button{flex:1;min-width:0}
+.progress{height:6px;background:#eceef5;border-radius:10px;overflow:hidden;margin-top:8px}
+#progressBar{height:100%;width:0;background:#4658c8;transition:width .2s}
+.stats{display:flex;gap:8px;margin-top:14px}
+.stat{flex:1;text-align:center;background:#f7f8fc;padding:10px 4px;border-radius:10px;font-size:12px;color:#70788a}
+.stat strong{display:block;font-size:21px;color:#252b3a}
+.flashcard{background:#fff;border:1px solid #e5e8f0;border-radius:18px;min-height:235px;padding:22px 16px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;cursor:pointer;margin-bottom:10px}
+.eyebrow{font-size:12px;color:#777f90}
+#cardText{font-size:23px;font-weight:700;white-space:pre-wrap;overflow-wrap:anywhere;margin:24px 0}
+.small{font-size:12px;color:#7b8191}
+#position{font-size:13px;color:#777f90}
+#message,#generatorMessage{font-size:13px;color:#394bb3;margin-top:10px}
+details summary{cursor:pointer;font-weight:700;font-size:15px}
+footer{text-align:center;font-size:12px;color:#8a90a0;padding:12px 0 28px}
 </style>
 </head>
 <body>
 <header>
-<h1>📚 マイ暗記カード</h1>
-<p>毎日の勉強を、少しずつ。</p>
+  <h1>📚 マイ暗記カード</h1>
+  <p>毎日の勉強を、少しずつ。</p>
 </header>
+
 <main>
-<section class="panel">
-<h2>教科を選ぶ</h2>
-<select id="subject">
-<option>歴史</option><option>地理</option><option>生物</option>
-<option>古文</option><option>英語</option><option>情報</option>
-</select>
-</section>
+  <section class="panel">
+    <label for="subject">勉強する科目</label>
+    <select id="subject">
+      <option>歴史</option>
+      <option>地理</option>
+      <option>生物</option>
+      <option>古文</option>
+      <option>英語</option>
+      <option>情報</option>
+    </select>
 
-<section class="panel">
-<div class="stats">
-<div class="stat"><span class="small">登録カード</span><strong id="total">0</strong></div>
-<div class="stat"><span class="small">覚えた</span><strong id="known">0</strong></div>
-<div class="stat"><span class="small">苦手</span><strong id="weak">0</strong></div>
-</div>
-</section>
+    <div class="stats">
+      <div class="stat">登録カード<strong id="total">0</strong></div>
+      <div class="stat">覚えた<strong id="known">0</strong></div>
+      <div class="stat">苦手<strong id="weak">0</strong></div>
+    </div>
+    <div class="progress"><div id="progressBar"></div></div>
+    <p class="small" id="progressText">学習を始めよう！</p>
+  </section>
 
-<section class="flashcard" id="flashcard" role="button" tabindex="0">
-<div class="eyebrow" id="side">QUESTION</div>
-<div id="cardText">カードを追加して始めよう！</div>
-<div class="count" id="position">0 / 0</div>
-<div class="small">カードをタップすると答えが見えるよ</div>
-</section>
+  <section class="flashcard" id="flashcard" role="button" tabindex="0">
+    <div class="eyebrow" id="side">QUESTION</div>
+    <div id="cardText">カードを追加して始めよう！</div>
+    <div id="position">0 / 0</div>
+    <p class="small">カードをタップして答えを見る</p>
+  </section>
 
-<div class="row" style="margin-bottom:10px">
-<button class="gray" id="prev">← 前へ</button>
-<button class="secondary" id="flip">答えを見る</button>
-<button class="gray" id="next">次へ →</button>
-</div>
-<div class="row" style="margin-bottom:10px">
-<button class="secondary" id="shuffle">🔀 シャッフル</button>
-<button class="gray" id="all">全部</button>
-<button class="danger" id="weakOnly">苦手だけ</button>
-</div>
-<div class="row" style="margin-bottom:18px">
-<button class="primary" id="markKnown">✓ 覚えた</button>
-<button class="danger" id="markWeak">× まだ苦手</button>
-</div>
+  <div class="row">
+    <button class="gray" id="prev">← 前へ</button>
+    <button class="light" id="flip">答えを見る</button>
+    <button class="gray" id="next">次へ →</button>
+  </div>
+  <div class="row">
+    <button class="light" id="shuffle">🔀 シャッフル</button>
+    <button class="gray" id="all">全部のカード</button>
+    <button class="red" id="weakOnly">苦手だけ</button>
+  </div>
+  <div class="row" style="margin-bottom:16px">
+    <button class="primary" id="markKnown">✓ 覚えた</button>
+    <button class="red" id="markWeak">× まだ苦手</button>
+  </div>
 
-<section class="panel">
-<h2>カードを追加する</h2>
-<label for="front">問題・表</label>
-<textarea id="front" rows="2" placeholder="例：大政奉還を行った人物は？"></textarea>
-<label for="back">答え・裏</label>
-<textarea id="back" rows="2" placeholder="例：徳川慶喜"></textarea>
-<div style="margin-top:12px" class="row">
-<button class="primary" id="add">＋ カードを追加</button>
-<button class="gray" id="delete">このカードを削除</button>
-</div>
-<div id="message"></div>
-</section>
-<p class="small">カードと学習記録は、このブラウザ内に保存されます。ブラウザのデータを消すと失われる場合があります。</p>
+  <section class="panel">
+    <details>
+      <summary>＋ 暗記カードを追加する</summary>
+      <label for="front">問題・表</label>
+      <textarea id="front" rows="2" placeholder="例：大政奉還を行った人物は？"></textarea>
+      <label for="back">答え・裏</label>
+      <textarea id="back" rows="2" placeholder="例：徳川慶喜"></textarea>
+      <button class="primary" id="add" style="width:100%;margin-top:12px">カードを追加</button>
+      <div id="message"></div>
+    </details>
+  </section>
+
+  <section class="panel">
+    <details>
+      <summary>✏️ 文章からカードを作る</summary>
+      <p class="small">文章に含まれる対応済みの用語から、サンプル問題を作成するよ。</p>
+      <label for="sampleSubject">保存する科目</label>
+      <select id="sampleSubject">
+        <option>生物</option>
+        <option>歴史</option>
+        <option>地理</option>
+        <option>古文</option>
+        <option>英語</option>
+        <option>情報</option>
+      </select>
+      <label for="sampleText">教科書の文章・用語</label>
+      <textarea id="sampleText" rows="5" placeholder="文章を入力してね。例：恒常性、自律神経系、内分泌系"></textarea>
+      <button class="primary" id="makeCards" style="width:100%;margin-top:12px">問題と答えを作る</button>
+      <div id="generatorMessage"></div>
+      <div id="sampleCards"></div>
+    </details>
+  </section>
+
+  <footer>カードと学習記録は、このブラウザに保存されます。</footer>
 </main>
-<script>
-const $=id=>document.getElementById(id);
-const key="myStudyCardsV1";
-let decks={};
-try{decks=JSON.parse(localStorage.getItem(key)||"{}")}catch(e){decks={}}
-let subject=$("subject").value,index=0,showBack=false,mode="all",order=[];
 
-function cards(){return decks[subject]||(decks[subject]=[])}
-function save(){try{localStorage.setItem(key,JSON.stringify(decks))}catch(e){$("message").textContent="保存できませんでした。空き容量を確認してね。"}}
-function buildOrder(){order=cards().map((_,i)=>i);if(mode==="weak")order=order.filter(i=>cards()[i].status==="weak");if(index>=order.length)index=0}
-function current(){return cards()[order[index]]}
-function render(){
-if(index>=order.length)index=0;
-const c=current();
-$("total").textContent=cards().length;
-$("known").textContent=cards().filter(c=>c.status==="known").length;
-$("weak").textContent=cards().filter(c=>c.status==="weak").length;
-$("side").textContent=showBack?"ANSWER":"QUESTION";
-$("cardText").textContent=c?(showBack?c.back:c.front):(mode==="weak"?"苦手カードはないよ！":"カードがないよ。下から追加してね！");
-$("position").textContent=order.length?`${index+1} / ${order.length}`:"0 / 0";
+<script>
+const $ = id => document.getElementById(id);
+const key = "myStudyCardsV1";
+
+let decks = {};
+try {
+  decks = JSON.parse(localStorage.getItem(key) || "{}");
+} catch (e) {
+  decks = {};
 }
-function changed(){save();render()}
-function flip(){if(current()){showBack=!showBack;render()}}
-$("subject").addEventListener("change",()=>{subject=$("subject").value;index=0;showBack=false;mode="all";buildOrder();render()});
-$("flashcard").addEventListener("click",flip);
-$("flashcard").addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();flip()}});
-$("flip").onclick=flip;
-$("prev").onclick=()=>{if(order.length){index=(index-1+order.length)%order.length;showBack=false;render()}};
-$("next").onclick=()=>{if(order.length){index=(index+1)%order.length;showBack=false;render()}};
-$("shuffle").onclick=()=>{for(let i=order.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[order[i],order[j]]=[order[j],order[i]]}index=0;showBack=false;render()};
-$("all").onclick=()=>{mode="all";index=0;showBack=false;buildOrder();render()};
-$("weakOnly").onclick=()=>{mode="weak";index=0;showBack=false;buildOrder();render()};
-$("markKnown").onclick=()=>{let c=current();if(c){c.status="known";changed();if(mode==="weak"){$("next").click()}}};
-$("markWeak").onclick=()=>{let c=current();if(c){c.status="weak";changed();if(mode==="weak"){$("next").click()}}};
-$("add").onclick=()=>{
-let front=$("front").value.trim(),back=$("back").value.trim();
-if(!front||!back){$("message").textContent="問題と答えを両方入力してね。";return}
-cards().push({front,back,status:""});
-$("front").value="";$("back").value="";
-mode="all";buildOrder();index=order.length-1;showBack=false;
-$("message").textContent="カードを追加したよ！";changed();
-};
-$("delete").onclick=()=>{
-let c=current();if(!c){$("message").textContent="削除するカードがないよ。";return}
-if(!confirm("このカードを削除していい？"))return;
-let i=order[index];cards().splice(i,1);index=0;buildOrder();showBack=false;changed();
-$("message").textContent="カードを削除したよ。";
-};
-buildOrder();render();
-</script>
 
-<section style="margin:20px 0;padding:16px;border:1px solid #ccc;border-radius:12px;">
-  <h2>📚 教科書から暗記カードを追加</h2>
+let subject = $("subject").value;
+let index = 0;
+let showBack = false;
+let mode = "all";
+let order = [];
 
-  <label for="bookSubject">科目</label>
-  <select id="bookSubject">
-    <option>生物</option>
-    <option>歴史</option>
-    <option>地理</option>
-    <option>古文</option>
-    <option>英語</option>
-    <option>情報</option>
-  </select>
-
-  <p>
-    <label for="bookName">教科書名</label><br>
-    <input id="bookName" type="text"
-      placeholder="例：高等学校 改訂 生物基礎"
-      style="width:100%;padding:10px;box-sizing:border-box;">
-  </p>
-
-  <p>
-    <label for="bookPages">ページ</label><br>
-    <input id="bookPages" type="text"
-      placeholder="例：94〜97"
-      style="width:100%;padding:10px;box-sizing:border-box;">
-  </p>
-
-  <p>ページの本文や重要用語を入力してね。</p>
-  <textarea id="bookContent"
-    placeholder="教科書の内容をここに入力"
-    style="width:100%;min-height:120px;padding:10px;box-sizing:border-box;"></textarea>
-
-  <p>
-    <button type="button" onclick="prepareBookCards()">
-      入力内容を確認する
-    </button>
-  </p>
-  <p id="bookResult"></p>
-</section>
-
-<script>
-function prepareBookCards() {
-  const subject = document.getElementById("bookSubject").value;
-  const book = document.getElementById("bookName").value.trim();
-  const pages = document.getElementById("bookPages").value.trim();
-  const content = document.getElementById("bookContent").value.trim();
-  const result = document.getElementById("bookResult");
-
-  if (!book || !pages || !content) {
-    result.textContent = "教科書名・ページ・本文を入力してね。";
-    return;
-  }
-
-  result.textContent =
-    "入力確認OK！ 科目：" + subject +
-    "／教科書：" + book +
-    "／ページ：" + pages +
-    "。この内容からカードを作る準備ができたよ。";
+function cards() {
+  if (!decks[subject]) decks[subject] = [];
+  return decks[subject];
 }
-</script>
 
-<section style="margin:20px 0;padding:16px;border:1px solid #ccc;border-radius:12px;">
-  <h2>📝 文章から暗記カードを作成</h2>
-  <p>文章を入力すると、重要語句を使った問題と答えを作るよ。</p>
+function save() {
+  try {
+    localStorage.setItem(key, JSON.stringify(decks));
+    return true;
+  } catch (e) {
+    $("message").textContent = "保存できなかったよ。空き容量を確認してね。";
+    return false;
+  }
+}
 
-  <label for="sampleSubject">科目</label>
-  <select id="sampleSubject">
-    <option value="生物">生物</option>
-    <option value="歴史">歴史</option>
-    <option value="地理">地理</option>
-    <option value="古文">古文</option>
-    <option value="英語">英語</option>
-    <option value="情報">情報</option>
-  </select>
+function buildOrder() {
+  order = cards().map((_, i) => i);
+  if (mode === "weak") {
+    order = order.filter(i => cards()[i].status === "weak");
+  }
+  if (index >= order.length) index = 0;
+}
 
-  <p>
-    <label for="sampleText">文章</label>
-    <textarea id="sampleText" style="width:100%;min-height:120px;box-sizing:border-box;" placeholder="ここに文章を入力"></textarea>
-  </p>
+function current() {
+  return order.length ? cards()[order[index]] : null;
+}
 
-  <button type="button" onclick="makeSampleCards()">問題と答えを作る</button>
-  <div id="sampleCards" style="margin-top:12px;"></div>
-</section>
+function render() {
+  if (index >= order.length) index = 0;
+  const c = current();
+  const list = cards();
+  const known = list.filter(c => c.status === "known").length;
+  const weak = list.filter(c => c.status === "weak").length;
 
-<script>
+  $("total").textContent = list.length;
+  $("known").textContent = known;
+  $("weak").textContent = weak;
+  $("progressBar").style.width =
+    (list.length ? known / list.length * 100 : 0) + "%";
+  $("progressText").textContent =
+    list.length ? "覚えたカード " + known + " / " + list.length : "学習を始めよう！";
 
-function makeSampleCards() {
-  const text = document.getElementById("sampleText").value.trim();
-  const selectedSubject = document.getElementById("sampleSubject").value;
-  const output = document.getElementById("sampleCards");
+  $("side").textContent = showBack ? "ANSWER" : "QUESTION";
+  $("cardText").textContent = c
+    ? (showBack ? c.back : c.front)
+    : (mode === "weak" ? "苦手カードはないよ！" : "カードを追加して始めよう！");
+  $("position").textContent = order.length
+    ? (index + 1) + " / " + order.length
+    : "0 / 0";
+  $("flip").textContent = showBack ? "問題に戻る" : "答えを見る";
+}
 
-  if (!text) {
-    output.textContent = "まず文章を入力してね。";
+function refresh() {
+  buildOrder();
+  render();
+}
+
+function flip() {
+  if (current()) {
+    showBack = !showBack;
+    render();
+  }
+}
+
+$("subject").addEventListener("change", () => {
+  subject = $("subject").value;
+  index = 0;
+  showBack = false;
+  mode = "all";
+  refresh();
+});
+
+$("flashcard").addEventListener("click", flip);
+$("flashcard").addEventListener("keydown", e => {
+  if (e.key === "Enter" || e.key === " ") {
+    e.preventDefault();
+    flip();
+  }
+});
+$("flip").onclick = flip;
+
+$("prev").onclick = () => {
+  if (order.length) {
+    index = (index - 1 + order.length) % order.length;
+    showBack = false;
+    render();
+  }
+};
+
+$("next").onclick = () => {
+  if (order.length) {
+    index = (index + 1) % order.length;
+    showBack = false;
+    render();
+  }
+};
+
+$("shuffle").onclick = () => {
+  for (let i = order.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [order[i], order[j]] = [order[j], order[i]];
+  }
+  index = 0;
+  showBack = false;
+  render();
+};
+
+$("all").onclick = () => {
+  mode = "all";
+  index = 0;
+  showBack = false;
+  refresh();
+};
+
+$("weakOnly").onclick = () => {
+  mode = "weak";
+  index = 0;
+  showBack = false;
+  refresh();
+};
+
+$("markKnown").onclick = () => {
+  const c = current();
+  if (!c) return;
+  c.status = "known";
+  save();
+  if (mode === "weak") {
+    index = order.length > 1 ? (index + 1) % order.length : 0;
+    buildOrder();
+  }
+  render();
+};
+
+$("markWeak").onclick = () => {
+  const c = current();
+  if (!c) return;
+  c.status = "weak";
+  save();
+  if (mode === "weak") {
+    buildOrder();
+  }
+  render();
+};
+
+$("add").onclick = () => {
+  const front = $("front").value.trim();
+  const back = $("back").value.trim();
+
+  if (!front || !back) {
+    $("message").textContent = "問題と答えを両方入力してね。";
     return;
   }
 
-  const generatedCards = [];
+  cards().push({front, back, status: ""});
+  if (!save()) return;
 
-  if (text.includes("恒常性") || text.includes("ホメオスタシス")) {
-    generatedCards.push({
-      front: "体内環境を一定の範囲に保つ性質は？",
-      back: "恒常性（ホメオスタシス）"
-    });
-  }
+  $("front").value = "";
+  $("back").value = "";
+  $("message").textContent = "カードを追加したよ！";
+  mode = "all";
+  index = cards().length - 1;
+  showBack = false;
+  refresh();
+};
 
-  if (text.includes("自律神経系")) {
-    generatedCards.push({
-      front: "体内環境の調節に関わる神経系は？",
-      back: "自律神経系"
-    });
-  }
-
-  if (text.includes("内分泌系")) {
-    generatedCards.push({
-      front: "ホルモンによる情報伝達に関わる系は？",
-      back: "内分泌系"
-    });
-  }
-
-  if (generatedCards.length === 0) {
-    output.textContent =
-      "「恒常性」「自律神経系」「内分泌系」を含む文章で試してね。";
-    return;
-  }
-
+$("makeCards").onclick = () => {
+  const text = $("sampleText").value.trim();
+  const target = $("sampleSubject").value;
+  const output = $("sampleCards");
+  $("generatorMessage").textContent = "";
   output.innerHTML = "";
 
-  generatedCards.forEach((card, index) => {
+  if (!text) {
+    $("generatorMessage").textContent = "文章を入力してね。";
+    return;
+  }
+
+  const generated = [];
+  const samples = [
+    [["恒常性", "ホメオスタシス"], "体内環境を一定の範囲に保つ性質は？", "恒常性（ホメオスタシス）"],
+    [["自律神経系"], "体内環境の調節に関わる神経系は？", "自律神経系"],
+    [["内分泌系"], "ホルモンによる情報伝達に関わる系は？", "内分泌系"]
+  ];
+
+  samples.forEach(([terms, front, back]) => {
+    if (terms.some(term => text.includes(term))) {
+      generated.push({front, back});
+    }
+  });
+
+  if (!generated.length) {
+    $("generatorMessage").textContent =
+      "今は「恒常性」「自律神経系」「内分泌系」に対応しているよ。";
+    return;
+  }
+
+  generated.forEach((card, i) => {
     const item = document.createElement("div");
-    item.style.cssText =
-      "padding:12px;margin:10px 0;border:1px solid #ddd;border-radius:8px;";
-
-    const question = document.createElement("p");
-    question.textContent = "問題" + (index + 1) + "：" + card.front;
-
-    const answer = document.createElement("p");
-    answer.textContent = "答え：" + card.back;
-
-    item.append(question, answer);
+    item.style.cssText = "padding:10px 0;border-bottom:1px solid #e5e8f0";
+    const q = document.createElement("p");
+    q.textContent = "問題：" + card.front;
+    const a = document.createElement("p");
+    a.textContent = "答え：" + card.back;
+    item.append(q, a);
     output.appendChild(item);
   });
 
   const saveButton = document.createElement("button");
-  saveButton.type = "button";
-  saveButton.textContent = "選んだ科目のデッキに保存";
+  saveButton.className = "primary";
+  saveButton.style.cssText = "width:100%;margin-top:12px";
+  saveButton.textContent = "「" + target + "」のデッキに保存";
 
   saveButton.onclick = () => {
-    if (!decks[selectedSubject]) {
-      decks[selectedSubject] = [];
-    }
-
-    generatedCards.forEach(card => {
-      decks[selectedSubject].push({
+    if (!decks[target]) decks[target] = [];
+    generated.forEach(card => {
+      decks[target].push({
         front: card.front,
         back: card.back,
         status: ""
       });
     });
 
-    save();
-
-    if ($("subject").value === selectedSubject) {
-      mode = "all";
-      index = 0;
-      showBack = false;
-      buildOrder();
-      render();
+    try {
+      localStorage.setItem(key, JSON.stringify(decks));
+    } catch (e) {
+      $("generatorMessage").textContent = "保存できなかったよ。空き容量を確認してね。";
+      return;
     }
 
-    output.textContent =
-      generatedCards.length + "枚を「" + selectedSubject +
-      "」のデッキに追加したよ！";
+    if ($("subject").value === target) {
+      subject = target;
+      mode = "all";
+      index = cards().length - generated.length;
+      showBack = false;
+      refresh();
+    }
+
+    output.innerHTML = "";
+    $("generatorMessage").textContent =
+      generated.length + "枚を「" + target + "」のデッキに保存したよ！";
   };
 
   output.appendChild(saveButton);
-}
+};
+
+refresh();
 </script>
-
-
 </body>
 </html>
