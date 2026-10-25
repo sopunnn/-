@@ -228,9 +228,10 @@ function prepareBookCards() {
 </section>
 
 <script>
+
 function makeSampleCards() {
   const text = document.getElementById("sampleText").value.trim();
-  const subject = document.getElementById("sampleSubject").value;
+  const selectedSubject = document.getElementById("sampleSubject").value;
   const output = document.getElementById("sampleCards");
 
   if (!text) {
@@ -238,70 +239,88 @@ function makeSampleCards() {
     return;
   }
 
-  let cards = [];
+  const generatedCards = [];
 
   if (text.includes("恒常性") || text.includes("ホメオスタシス")) {
-    cards.push({
+    generatedCards.push({
       front: "体内環境を一定の範囲に保つ性質は？",
       back: "恒常性（ホメオスタシス）"
     });
   }
 
   if (text.includes("自律神経系")) {
-    cards.push({
+    generatedCards.push({
       front: "体内環境の調節に関わる神経系は？",
       back: "自律神経系"
     });
   }
 
   if (text.includes("内分泌系")) {
-    cards.push({
+    generatedCards.push({
       front: "ホルモンによる情報伝達に関わる系は？",
       back: "内分泌系"
     });
   }
 
-  if (cards.length === 0) {
+  if (generatedCards.length === 0) {
     output.textContent =
-      "文章は読み込めたよ。今はサンプル用の語句に対応しているので、「恒常性」「自律神経系」「内分泌系」を含む文章で試してね。";
+      "「恒常性」「自律神経系」「内分泌系」を含む文章で試してね。";
     return;
   }
 
   output.innerHTML = "";
 
-  cards.forEach((card, index) => {
+  generatedCards.forEach((card, index) => {
     const item = document.createElement("div");
-    item.style.cssText = "padding:12px;margin:10px 0;border:1px solid #ddd;border-radius:8px;";
+    item.style.cssText =
+      "padding:12px;margin:10px 0;border:1px solid #ddd;border-radius:8px;";
+
     const question = document.createElement("p");
     question.textContent = "問題" + (index + 1) + "：" + card.front;
+
     const answer = document.createElement("p");
     answer.textContent = "答え：" + card.back;
+
     item.append(question, answer);
     output.appendChild(item);
   });
 
-  const save = document.createElement("button");
-  save.type = "button";
-  save.textContent = "このカードを保存用にコピー";
-  save.onclick = () => {
-    const data = cards.map(card => ({
-      subject,
-      front: card.front,
-      back: card.back
-    }));
-    const blob = new Blob([JSON.stringify(data, null, 2)], {
-      type: "application/json"
+  const saveButton = document.createElement("button");
+  saveButton.type = "button";
+  saveButton.textContent = "選んだ科目のデッキに保存";
+
+  saveButton.onclick = () => {
+    if (!decks[selectedSubject]) {
+      decks[selectedSubject] = [];
+    }
+
+    generatedCards.forEach(card => {
+      decks[selectedSubject].push({
+        front: card.front,
+        back: card.back,
+        status: ""
+      });
     });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = "flashcards.json";
-    link.click();
-    URL.revokeObjectURL(url);
+
+    save();
+
+    if ($("subject").value === selectedSubject) {
+      mode = "all";
+      index = 0;
+      showBack = false;
+      buildOrder();
+      render();
+    }
+
+    output.textContent =
+      generatedCards.length + "枚を「" + selectedSubject +
+      "」のデッキに追加したよ！";
   };
-  output.appendChild(save);
+
+  output.appendChild(saveButton);
 }
 </script>
+
 
 </body>
 </html>
