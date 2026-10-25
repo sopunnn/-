@@ -5,39 +5,169 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>マイ暗記カード</title>
+
 <style>
 *{box-sizing:border-box}
-body{margin:0;background:#f6f7fb;color:#252b3a;font-family:-apple-system,BlinkMacSystemFont,sans-serif}
-header{background:#fff;padding:22px 18px;border-bottom:1px solid #e7e9f0}
-header h1{font-size:23px;margin:0}
-header p{font-size:13px;color:#7b8191;margin:5px 0 0}
-main{max-width:560px;margin:auto;padding:16px}
-.panel{background:white;border:1px solid #e5e8f0;border-radius:16px;padding:16px;margin-bottom:14px}
-h2{font-size:16px;margin:0 0 12px}
-label{display:block;font-size:13px;margin:12px 0 6px}
-select,input,textarea{width:100%;padding:12px;border:1px solid #dfe3eb;border-radius:10px;background:white;font-size:16px;color:#252b3a}
-button{border:0;border-radius:10px;padding:12px;font-size:14px;font-weight:600;cursor:pointer}
-button:active{opacity:.75}
-.primary{background:#4658c8;color:white}
-.light{background:#eef0ff;color:#394bb3}
-.gray{background:#f0f2f6;color:#343b4c}
-.red{background:#fff0ef;color:#ad3935}
-.row{display:flex;gap:8px;margin-top:10px}
+body{
+  margin:0;
+  background:#15181f;
+  color:#e5e8ef;
+  font-family:-apple-system,BlinkMacSystemFont,sans-serif
+}
+header{
+  background:#15181f;
+  padding:22px 18px 12px;
+  border:0
+}
+header h1{font-size:25px;margin:0;font-weight:750}
+header p{font-size:13px;color:#929baa;margin:6px 0 0}
+main{max-width:900px;margin:auto;padding:14px 16px 24px}
+.panel{
+  background:#202832;
+  border:1px solid #37414e;
+  border-radius:20px;
+  padding:18px;
+  margin-bottom:18px
+}
+h2{font-size:17px;margin:0 0 12px}
+label{display:block;font-size:14px;margin:12px 0 6px;color:#c8ced8}
+select,input,textarea{
+  width:100%;
+  padding:13px;
+  border:1px solid #3b4654;
+  border-radius:12px;
+  background:#202832;
+  font-size:16px;
+  color:#e5e8ef
+}
+button{
+  border:1px solid #394452;
+  border-radius:20px;
+  padding:15px 12px;
+  font-size:15px;
+  font-weight:600;
+  cursor:pointer;
+  background:#202832;
+  color:#e5e8ef;
+  transition:opacity .15s
+}
+button:active{opacity:.7}
+.primary,.light{
+  background:#50c18b;
+  color:#10251d;
+  border-color:#50c18b
+}
+.gray{background:#202832;color:#e5e8ef}
+.red{
+  background:#303039;
+  color:#f1b4b4;
+  border-color:#41414c
+}
+.row{display:flex;gap:9px;margin-top:10px}
 .row button{flex:1;min-width:0}
-.progress{height:6px;background:#eceef5;border-radius:10px;overflow:hidden;margin-top:8px}
-#progressBar{height:100%;width:0;background:#4658c8;transition:width .2s}
+.progress{
+  height:9px;
+  background:#37414e;
+  border-radius:20px;
+  overflow:hidden;
+  margin-top:12px
+}
+#progressBar{
+  height:100%;
+  width:0;
+  background:#50c18b;
+  transition:width .2s
+}
 .stats{display:flex;gap:8px;margin-top:14px}
-.stat{flex:1;text-align:center;background:#f7f8fc;padding:10px 4px;border-radius:10px;font-size:12px;color:#70788a}
-.stat strong{display:block;font-size:21px;color:#252b3a}
-.flashcard{background:#fff;border:1px solid #e5e8f0;border-radius:18px;min-height:235px;padding:22px 16px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;cursor:pointer;margin-bottom:10px}
-.eyebrow{font-size:12px;color:#777f90}
-#cardText{font-size:23px;font-weight:700;white-space:pre-wrap;overflow-wrap:anywhere;margin:24px 0}
-.small{font-size:12px;color:#7b8191}
-#position{font-size:13px;color:#777f90}
-#message,#generatorMessage{font-size:13px;color:#394bb3;margin-top:10px}
+.stat{
+  flex:1;
+  text-align:center;
+  background:#29323d;
+  padding:12px 4px;
+  border-radius:12px;
+  font-size:12px;
+  color:#aab3c0
+}
+.stat strong{
+  display:block;
+  font-size:22px;
+  color:#e5e8ef;
+  margin-top:4px
+}
+.flashcard{
+  position:relative;
+  background:#eeefeb;
+  color:#242d39;
+  border:0;
+  border-radius:18px;
+  min-height:360px;
+  padding:28px 22px;
+  display:flex;
+  flex-direction:column;
+  align-items:stretch;
+  justify-content:space-between;
+  text-align:center;
+  cursor:pointer;
+  margin:28px 5px 16px;
+  box-shadow:7px 8px 0 #c6c9c4,12px 13px 0 #777d80;
+}
+.eyebrow{
+  font-size:14px;
+  color:#78818d;
+  text-align:left
+}
+#cardText{
+  font-size:clamp(24px,5vw,34px);
+  line-height:1.65;
+  font-weight:750;
+  white-space:pre-wrap;
+  overflow-wrap:anywhere;
+  margin:35px 0;
+  text-align:left
+}
+#position{
+  font-size:14px;
+  color:#aab3c0;
+  text-align:center;
+  margin-top:20px
+}
+.flashcard .small{
+  color:#78818d;
+  text-align:right;
+  margin-bottom:0
+}
+.small{font-size:13px;color:#aab3c0}
+#progressText{color:#aab3c0}
+#message,#generatorMessage{
+  font-size:13px;
+  color:#50c18b;
+  margin-top:10px
+}
 details summary{cursor:pointer;font-weight:700;font-size:15px}
-footer{text-align:center;font-size:12px;color:#8a90a0;padding:12px 0 28px}
+footer{text-align:center;font-size:12px;color:#858e9b;padding:16px 0 28px}
+#markKnown{
+  background:#50c18b;
+  color:#10251d;
+  border-color:#50c18b;
+  font-size:18px;
+  min-height:70px
+}
+#markWeak{
+  font-size:17px;
+  min-height:70px
+}
+#prev,#next{min-width:54px}
+@media(max-width:420px){
+  main{padding:12px}
+  header{padding:20px 14px 10px}
+  .flashcard{min-height:310px;padding:22px 18px}
+  #cardText{font-size:25px}
+  .row{gap:7px}
+  button{padding:13px 8px;font-size:13px}
+  #markKnown,#markWeak{font-size:15px}
+}
 </style>
+
 </head>
 <body>
 <header>
