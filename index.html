@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE html >
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -185,6 +185,16 @@ footer{text-align:center;font-size:12px;color:#858e9b;padding:16px 0 28px}
       <option>情報</option>
     </select>
 
+    <label for="unitSelect">プリント・単元</label>
+    <div class="row">
+      <select id="unitSelect" style="flex:1">
+        <option value="すべて">すべてのプリント</option>
+      </select>
+      <button class="gray" id="createUnit">＋ プリント追加</button>
+      <button class="red" id="deleteUnit">単元削除</button>
+    </div>
+    <p class="small" id="unitMessage">科目ごとに「プリントNo.3」などを作れるよ。</p>
+
     <div class="stats">
       <div class="stat">登録カード<strong id="total">0</strong></div>
       <div class="stat">覚えた<strong id="known">0</strong></div>
@@ -213,6 +223,22 @@ footer{text-align:center;font-size:12px;color:#858e9b;padding:16px 0 28px}
     <button class="primary" id="markKnown">覚えた</button>
     <button class="gray" id="next">→</button>
   </div>
+
+  <section class="panel">
+    <details>
+      <summary>🛠️ 表示中のカードを編集・削除</summary>
+      <p class="small">今表示しているカードの内容を修正したり、不要なカードを削除したりできるよ。</p>
+      <label for="editFront">問題・表</label>
+      <textarea id="editFront" rows="2" placeholder="編集したい問題"></textarea>
+      <label for="editBack">答え・裏</label>
+      <textarea id="editBack" rows="2" placeholder="編集したい答え"></textarea>
+      <div class="row" style="margin-top:12px">
+        <button class="primary" id="editSave">変更を保存</button>
+        <button class="red" id="deleteCard">このカードを削除</button>
+      </div>
+      <div id="editMessage"></div>
+    </details>
+  </section>
 
   <section class="panel">
     <details>
@@ -266,10 +292,64 @@ let index = 0;
 let showBack = false;
 let mode = "all";
 let order = [];
+let selectedUnit = "すべて";
 
+// Unit names are stored separately so even an empty print can exist.
+// Existing cards remain in the original myStudyCardsV1 storage.
+const unitKey = "myStudyUnitsV1";
+let unitNames = {};
+try {
+  unitNames = JSON.parse(localStorage.getItem(unitKey) || "{}");
+} catch (e) {
+  unitNames = {};
+}
+function unitsForSubject() {
+  if (!Array.isArray(unitNames[subject])) unitNames[subject] = [];
+  // Keep any unit already attached to a card, including cards from older versions.
+  cards().forEach(card => {
+    const unit = card.unit || "未分類";
+    if (!unitNames[subject].includes(unit)) unitNames[subject].push(unit);
+  });
+  return unitNames[subject];
+}
+function saveUnits() {
+  try {
+    localStorage.setItem(unitKey, JSON.stringify(unitNames));
+    return true;
+  } catch (e) {
+    $("unitMessage").textContent = "単元を保存できなかったよ。";
+    return false;
+  }
+}
+function updateUnitSelect() {
+  const select = $("unitSelect");
+  const old = selectedUnit;
+  const names = unitsForSubject();
+  select.innerHTML = "";
+  const allOption = document.createElement("option");
+  allOption.value = "すべて";
+  allOption.textContent = "すべてのプリント";
+  select.appendChild(allOption);
+  names.forEach(name => {
+    const option = document.createElement("option");
+    option.value = name;
+    option.textContent = name;
+    select.appendChild(option);
+  });
+  if (old !== "すべて" && names.includes(old)) {
+    select.value = old;
+  } else {
+    selectedUnit = "すべて";
+    select.value = "すべて";
+  }
+}
 function cards() {
   if (!decks[subject]) decks[subject] = [];
   return decks[subject];
+}
+function visibleCards() {
+  return cards().filter(card => selectedUnit === "すべて" ||
+    (card.unit || "未分類") === selectedUnit);
 }
 
 function save() {
@@ -283,21 +363,23 @@ function save() {
 }
 
 function buildOrder() {
-  order = cards().map((_, i) => i);
+  const list = visibleCards();
+  order = list.map((_, i) => i);
   if (mode === "weak") {
-    order = order.filter(i => cards()[i].status === "weak");
+    order = order.filter(i => list[i].status === "weak");
   }
   if (index >= order.length) index = 0;
 }
 
 function current() {
-  return order.length ? cards()[order[index]] : null;
+  return order.length ? visibleCards()[order[index]] : null;
 }
 
 function render() {
   if (index >= order.length) index = 0;
+  updateUnitSelect();
   const c = current();
-  const list = cards();
+  const list = visibleCards();
   const known = list.filter(c => c.status === "known").length;
   const weak = list.filter(c => c.status === "weak").length;
 
@@ -316,6 +398,10 @@ function render() {
   $("position").textContent = order.length
     ? (index + 1) + " / " + order.length
     : "0 / 0";
+
+  $("editFront").value = c ? c.front : "";
+  $("editBack").value = c ? c.back : "";
+  $("editMessage").textContent = "";
 }
 
 function refresh() {
@@ -332,11 +418,65 @@ function flip() {
 
 $("subject").addEventListener("change", () => {
   subject = $("subject").value;
+  selectedUnit = "すべて";
+  index = 0;
+  showBack = false;
+  mode = "all";
+  updateUnitSelect();
+  refresh();
+});
+
+$("unitSelect").addEventListener("change", () => {
+  selectedUnit = $("unitSelect").value;
   index = 0;
   showBack = false;
   mode = "all";
   refresh();
 });
+
+$("createUnit").onclick = () => {
+  const name = prompt("プリント名を入力してね（例：プリントNo.3）");
+  if (name === null) return;
+  const cleaned = name.trim();
+  if (!cleaned) {
+    $("unitMessage").textContent = "プリント名を入力してね。";
+    return;
+  }
+  const names = unitsForSubject();
+  if (names.includes(cleaned)) {
+    $("unitMessage").textContent = "そのプリント名はもうあるよ。";
+    return;
+  }
+  names.push(cleaned);
+  if (!saveUnits()) return;
+  selectedUnit = cleaned;
+  index = 0;
+  mode = "all";
+  updateUnitSelect();
+  refresh();
+  $("unitMessage").textContent = "「" + cleaned + "」を作ったよ！カードを追加すると、このプリントに入るよ。";
+};
+
+$("deleteUnit").onclick = () => {
+  if (selectedUnit === "すべて") {
+    $("unitMessage").textContent = "削除したいプリントを先に選んでね。";
+    return;
+  }
+  const name = selectedUnit;
+  const count = cards().filter(card => (card.unit || "未分類") === name).length;
+  const warning = "「" + name + "」を削除する？\n中のカード" + count + "枚もすべて削除されるよ。この操作は元に戻せないよ。";
+  if (!confirm(warning)) return;
+  decks[subject] = cards().filter(card => (card.unit || "未分類") !== name);
+  unitNames[subject] = unitsForSubject().filter(unit => unit !== name);
+  selectedUnit = "すべて";
+  index = 0;
+  showBack = false;
+  save();
+  saveUnits();
+  updateUnitSelect();
+  refresh();
+  $("unitMessage").textContent = "「" + name + "」と中のカードを削除したよ。";
+};
 
 $("flashcard").addEventListener("click", flip);
 $("flashcard").addEventListener("keydown", e => {
@@ -413,8 +553,12 @@ $("add").onclick = () => {
     return;
   }
 
-  cards().push({front, back, status: ""});
+  cards().push({front, back, status: "", unit: selectedUnit === "すべて" ? "未分類" : selectedUnit});
   if (!save()) return;
+  if (!unitsForSubject().includes(selectedUnit === "すべて" ? "未分類" : selectedUnit)) {
+    unitsForSubject().push(selectedUnit === "すべて" ? "未分類" : selectedUnit);
+    saveUnits();
+  }
 
   $("front").value = "";
   $("back").value = "";
@@ -423,6 +567,42 @@ $("add").onclick = () => {
   index = cards().length - 1;
   showBack = false;
   refresh();
+};
+
+$("editSave").onclick = () => {
+  const c = current();
+  if (!c) {
+    $("editMessage").textContent = "編集するカードがないよ。";
+    return;
+  }
+  const front = $("editFront").value.trim();
+  const back = $("editBack").value.trim();
+  if (!front || !back) {
+    $("editMessage").textContent = "問題と答えを両方入力してね。";
+    return;
+  }
+  c.front = front;
+  c.back = back;
+  if (!save()) return;
+  render();
+  $("editMessage").textContent = "変更を保存したよ！";
+};
+
+$("deleteCard").onclick = () => {
+  const c = current();
+  if (!c) {
+    $("editMessage").textContent = "削除するカードがないよ。";
+    return;
+  }
+  if (!confirm("このカードを削除していい？この操作は元に戻せないよ。")) return;
+  const list = cards();
+  const actualIndex = list.indexOf(c);
+  if (actualIndex !== -1) list.splice(actualIndex, 1);
+  if (!save()) return;
+  index = Math.min(index, Math.max(0, order.length - 2));
+  showBack = false;
+  refresh();
+  $("editMessage").textContent = "カードを削除したよ。";
 };
 
 $("makeCards").onclick = () => {
@@ -478,7 +658,8 @@ $("makeCards").onclick = () => {
       decks[target].push({
         front: card.front,
         back: card.back,
-        status: ""
+        status: "",
+        unit: selectedUnit === "すべて" ? "未分類" : selectedUnit
       });
     });
 
@@ -491,15 +672,19 @@ $("makeCards").onclick = () => {
 
     if ($("subject").value === target) {
       subject = target;
+      if (selectedUnit === "すべて") selectedUnit = "未分類";
+      if (!unitsForSubject().includes("未分類")) unitsForSubject().push("未分類");
+      saveUnits();
+      updateUnitSelect();
       mode = "all";
-      index = cards().length - generated.length;
+      index = Math.max(0, visibleCards().length - generated.length);
       showBack = false;
       refresh();
     }
 
     output.innerHTML = "";
     $("generatorMessage").textContent =
-      generated.length + "枚を「" + target + "」のデッキに保存したよ！";
+      generated.length + "枚を「" + target + "」の「" + (selectedUnit === "すべて" ? "未分類" : selectedUnit) + "」に保存したよ！";
   };
 
   output.appendChild(saveButton);
